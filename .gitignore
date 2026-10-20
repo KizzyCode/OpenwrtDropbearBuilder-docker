@@ -1,0 +1,16 @@
+# Ignore .DS_Store
+.DS_Store
+
+# Ignore some vscode files
+.vscode/*
+!.vscode/*.md
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Ignore devcontainer
+.devcontainer/*
+
+# Local build output
+/artifacts

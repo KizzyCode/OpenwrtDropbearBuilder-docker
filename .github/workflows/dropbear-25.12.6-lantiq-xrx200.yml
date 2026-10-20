@@ -1,0 +1,43 @@
+name: Build Dropbear APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  OPENWRT_SDK_URL: "https://downloads.openwrt.org/releases/25.12.6/targets/lantiq/xrx200/openwrt-sdk-25.12.6-lantiq-xrx200_gcc-14.3.0_musl.Linux-x86_64.tar.zst"
+  OPENWRT_SDK_SHA256: "871781bcaa1ea2fe1d3c47d80628a29983121d8682556e9aa7c8e5874b793f21"
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4.4.1
+
+      - name: Build Dropbear APK
+        uses: docker/build-push-action@v7.4.0
+        with:
+          context: .
+          platforms: linux/amd64
+          build-args: |
+            OPENWRT_SDK_URL=${{ env.OPENWRT_SDK_URL }}
+            OPENWRT_SDK_SHA256=${{ env.OPENWRT_SDK_SHA256 }}
+          outputs: type=local,dest=artifacts
+          cache-from: type=gha,scope=dropbear-builder
+          cache-to: type=gha,mode=max,scope=dropbear-builder
+
+      - name: Upload package
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: dropbear-apk
+          path: artifacts/dropbear-*.apk
+          if-no-files-found: error
